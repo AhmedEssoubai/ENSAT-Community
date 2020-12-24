@@ -1,0 +1,14 @@
+#profil #cover {
+    background-image: url("../img/profile-cover.jpg");
+    background-size: cover;
+    height: 300px;
+}
+#profil-avatar {
+    width: 200px;
+    height: 200px;
+    position: absolute;
+    top: 200px;
+}
+#name {
+    margin-left: 220px;
+}

@@ -1,0 +1,39 @@
+#welcome{
+    position: relative;
+    /*background: linear-gradient(to bottom, rgba(30, 113, 168, 0.8) 0%, rgba(15, 11, 87, 0.8) 100%), url("../img/bg.jpg");*/
+    /*
+        #328bf2
+        #1644ad
+    */
+    background-image: linear-gradient(131deg,rgba(50, 139, 242, 0.8) 1%,rgba(22, 68, 173, 0.8) 67%), url("../img/bg.jpg");
+    background-size: cover;
+    /*min-height: 600px;*/
+    min-height: 100vh;
+}
+
+.btn-outline-secondary:hover{
+    background-color: rgba(71, 71, 71, 0.3) !important;
+    border-color: rgba(71, 71, 71, 0.3) !important;
+}
+
+#properties .card{
+    background-color: transparent;
+    border: 0;
+}
+
+#properties .card-text{
+    opacity: 0.4;
+}
+
+#properties .card .card-icon{
+    height: 105px;
+    width: 105px;
+    margin: 0 auto 20px auto;
+    background-color: #328AF1;
+    border-radius: 50%;
+    font-size: 3em;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}

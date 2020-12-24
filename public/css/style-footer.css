@@ -1,0 +1,30 @@
+footer{
+    /*background-color: #328AF1;*/
+    background-image: radial-gradient(circle at 1% 1%,#328bf2,#1644ad);
+    color: white;
+}
+footer div{
+    border-color: #C9C9C9;
+}
+.footer-bottom{
+    margin: 0 2rem 0 2rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 12px;
+    text-align: center;
+    padding: 1rem 0 1rem 0;
+}
+.footer-list a{
+    color: rgba(255, 255, 255, 0.6);
+}
+.footer-list{
+    padding: 0;
+    list-style: none;
+}
+.footer-list a:hover{
+    color: white;
+    text-decoration: none;
+}
+.footer-list li{
+    text-decoration: none;
+}
