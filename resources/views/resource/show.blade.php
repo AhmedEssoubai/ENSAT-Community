@@ -43,18 +43,21 @@
                         </div>
                     </div>
                 </div>
+                @can('delete', $resource)
                 <div class="mt-3">
                     <div id="view-history" class="py-3 lead text-dgray post cursor-pointer">
                         Students views history
                     </div>
-                    <div class="history-list text-dgray border-top" style="display: none">
+                    <div class="text-dgray border-top" style="display: none">
                         <div class="loading text-center text-dgray py-3">
                             <div class="spinner-border" role="status">
                               <span class="sr-only">Loading...</span>
                             </div>
                         </div>
+                        <div class="history-list" style="display: none"></div>
                     </div>
                 </div>
+                @endcan
             </div>
             {{-- Side --}}
             <div class="col-3 d-none d-lg-block">
@@ -118,7 +121,7 @@
         <script type="text/javascript" src="{{ asset("js/alert-scripts.js") }}"></script>
         <script type="text/javascript" src="{{ asset("js/views-history-scripts.js") }}"></script>
         <script type="text/javascript">
-            resource = {{ $resource->id }};
+            item = {{ $resource->id }};
         </script>
     @endcan
     <script type="text/javascript">

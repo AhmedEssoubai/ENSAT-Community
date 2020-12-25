@@ -150,6 +150,14 @@ class Assignment extends Model
         return 'normal';
     }
 
+    /**
+     * The students that view the assignment
+     */
+    public function views()
+    {
+        return $this->morphToMany('App\Student', 'seen', 'views')->withPivot('seen_at');
+    }
+
     public function getDates()
     {
         return array('created_at', 'updated_at', 'deadline');

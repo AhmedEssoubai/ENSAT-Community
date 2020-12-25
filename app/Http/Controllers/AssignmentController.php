@@ -235,8 +235,12 @@ class AssignmentController extends CommunityController
     public function show(Assignment $assignment)
     {
         Gate::authorize('class-member', $assignment->course->classe);
-        if (Auth::user()->isStudent() && !$assignment->isAssignedTo(Auth::user()->profile_id))
-            abort(403, 'The work is not assigned to you.');
+        if (Auth::user()->isStudent())
+        {
+            if (!$assignment->isAssignedTo(Auth::user()->profile_id))
+                abort(403, 'The work is not assigned to you.');
+            $assignment->views()->syncWithoutDetaching(Auth::user()->profile_id);
+        }
         return view('assignment.show', 
         ['assignment' => $assignment, 
         'submission' => $assignment->getSubmission(Auth::user()),
@@ -312,5 +316,46 @@ class AssignmentController extends CommunityController
         $assignment->delete();
         
         return redirect('/classes/' . $id . '/assignments');
+    }
+
+    public function studentsViewHistory(Assignment $assignment)
+    {
+        $this->authorize('delete', $assignment);
+        global $id;
+        $id = $assignment->id;
+        $students = null;
+        if ($assignment->all)
+        {
+            if ($assignment->to_groups)
+                $students = $assignment->class->activeStudents()->whereHas('groups');
+            else
+                $students = $assignment->class->activeStudents()->whereHas('groups');
+        }
+        else
+        {
+            if ($assignment->to_groups)
+                $students = $assignment->class->activeStudents()->whereHas('groups', function (Builder $query) {
+                    $query->whereHas('assignments', function (Builder $query) {
+                        global $id;
+                        $query->where('id', $id);
+                    });
+                });
+            else
+                $students = $assignment->students();
+        }
+        $students = $students->with('user:id,firstname,lastname,image,profile_id,profile_type')->get();
+        $views = $assignment->views()->where('seen_id', $assignment->id)->select('id')->get();
+        $names = array();
+        $ids = array();
+        $imgs = array();
+        $dates = array();
+        foreach ($students as $student) {
+            array_push($names, $student->user->firstname." ".$student->user->lastname);
+            array_push($ids, $student->user->profile_id);
+            array_push($imgs, $student->user->image);
+            $view = $views->find($student->user->profile_id);
+            array_push($dates, $view ? $view->pivot->seen_at : null);
+        }
+        return response()->json(['names' => $names, 'ids' => $ids, 'imgs' => $imgs, 'dates' => $dates]);
     }
 }

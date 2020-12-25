@@ -74,6 +74,7 @@ Route::get('/assignments/{assignment}', 'AssignmentController@show')->name('assi
 Route::get('/assignments/{assignment}/edit', 'AssignmentController@edit')->name('assignments.edit');
 Route::patch('/assignments/{assignment}', 'AssignmentController@update')->name('assignments.update');
 Route::get('/assignments/d/{assignment}', 'AssignmentController@destroy')->name('assignments.destroy');
+Route::get('/assignments/{assignment}/views', 'AssignmentController@studentsViewHistory')->name('assignments.views')->middleware('professor');
 // Submissions
 Route::post('/submission', 'SubmissionController@store')->name('submissions');
 // Files

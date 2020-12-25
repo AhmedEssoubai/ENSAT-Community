@@ -140,10 +140,10 @@ function stopEventPropagation(e)
 
 function diffForHumans(datetime)
 {
-    var posted_mil = (new Date()).getTime() - (new Date(datetime)).getTime();
-    var posted_value = posted_mil / 100;
+    var posted_mil = (new Date()).getTime() - (datetime).getTime();
+    var posted_value = posted_mil / 1000;
     var posted_type = "second" + (posted_value >= 2 ? "s" : "");
-    if (posted_value > 59)
+    if (posted_value >= 60)
     {
         posted_value = posted_value / 60;
         posted_type = "minute" + (posted_value >= 2 ? "s" : "");
@@ -153,25 +153,20 @@ function diffForHumans(datetime)
             posted_type = "hour" + (posted_value >= 2 ? "s" : "");
             if (posted_value >= 60)
             {
-                posted_value = posted_value / 60;
-                posted_type = "hour" + (posted_value >= 2 ? "s" : "");
-                if (posted_value >= 24)
+                posted_value = posted_value / 24;
+                posted_type = "day" + (posted_value >= 2 ? "s" : "");
+                if (posted_value >= 7)
                 {
-                    posted_value = posted_value / 24;
-                    posted_type = "day" + (posted_value >= 2 ? "s" : "");
-                    if (posted_value >= 7)
+                    posted_value = posted_value / 7;
+                    posted_type = "week" + (posted_value >= 2 ? "s" : "");
+                    if (posted_value >= 4.3)
                     {
                         posted_value = posted_value / 7;
-                        posted_type = "week" + (posted_value >= 2 ? "s" : "");
-                        if (posted_value >= 4.3)
+                        posted_type = "month" + (posted_value >= 2 ? "s" : "");
+                        if (posted_value >= 12)
                         {
-                            posted_value = posted_value / 7;
-                            posted_type = "month" + (posted_value >= 2 ? "s" : "");
-                            if (posted_value >= 12)
-                            {
-                                posted_value = posted_value / 12;
-                                posted_type = "year" + (posted_value >= 2 ? "s" : "");
-                            }
+                            posted_value = posted_value / 12;
+                            posted_type = "year" + (posted_value >= 2 ? "s" : "");
                         }
                     }
                 }
