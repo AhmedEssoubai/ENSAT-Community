@@ -132,7 +132,7 @@
     @can('create', App\Group::class)
         <script src="{{ asset('js/members-scripts.js') }}"></script>
         <script>
-            src = "/search/students/";
+            src = "/search/students/{{ $class->id}}/";
             selected_name = "students";
             selected_changed = function(count) {
                 document.getElementById("submit_form").disabled = count == 0 || isEmpty(document.getElementById("group_label").value);

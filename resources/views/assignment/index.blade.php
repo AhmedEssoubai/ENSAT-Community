@@ -63,7 +63,7 @@
                                 <h4 class="mb-4 text-bold-600"><a id="post_show" href="{{ route('assignments.show', $assignment->id) }}" class="text-dark line-clamp">{{ $assignment->title }}</a></h4>
                                 <p id="post_content_{{ $loop->index }}" class="text-dgray mb-2 line-clamp lc-3">{{ $assignment->objectif }}</p>
                                 <div class="d-flex">
-                                    <span class="mr-3 text-red">Deadline: {{ $assignment->deadline->format('h:i A') }} (@if (!$assignment->is_closed()) {{ $assignment->deadline->diffForHumans([
+                                    <span class="mr-3 text-red">Deadline: {{ $assignment->deadline->format('h:i A') }} (@if (!$assignment->isClosed()) {{ $assignment->deadline->diffForHumans([
                                         'syntax' => Carbon\CarbonInterface::DIFF_RELATIVE_TO_NOW,
                                         'options' => Carbon\Carbon::JUST_NOW | Carbon\Carbon::ONE_DAY_WORDS | Carbon\Carbon::TWO_DAY_WORDS,
                                     ]) }}

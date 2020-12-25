@@ -48,7 +48,7 @@ Route::post('/members', 'ClassController@add_professors')->name('add.professors'
 Route::get('/members/{class}/{professor}', 'ClassController@kick_professor')->name('kick.professors')->middleware('professor');
 Route::get('/professors', 'ProfessorController@index')->name('professors')->middleware('professor');
 // Students
-Route::get('/search/students/{value}', 'StudentController@search')->name('search.students');
+Route::get('/search/students/{class}/{value}', 'StudentController@search')->name('search.students');
 Route::get('/students/kick/{student}', 'StudentController@kick')->name('students.kick');
 // Discussions
 Route::get('/classes/{class}/discussions', 'DiscussionController@index')->name('classes.discussions');
@@ -66,6 +66,7 @@ Route::get('/resources/{resource}', 'ResourceController@show')->name('resources.
 Route::get('/resources/{resource}/edit', 'ResourceController@edit')->name('resources.edit')->middleware('professor');
 Route::patch('/resources/{resource}', 'ResourceController@update')->name('resources.update')->middleware('professor');
 Route::get('/resources/d/{resource}', 'ResourceController@destroy')->name('resources.destroy')->middleware('professor');
+Route::get('/resources/{resource}/views', 'ResourceController@studentsViewHistory')->name('resources.views')->middleware('professor');
 // Assignments
 Route::get('/classes/{class}/assignments', 'AssignmentController@index')->name('classes.assignments');
 Route::post('/assignments', 'AssignmentController@store')->name('assignments');

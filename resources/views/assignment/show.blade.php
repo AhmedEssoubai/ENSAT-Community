@@ -26,7 +26,7 @@
                             @endswitch
                         </div>
                         <div class="mt-2">
-                            <small class="mr-3 text-red">Deadline: {{ $assignment->deadline }} (@if (!$assignment->is_closed()) {{ $assignment->deadline->diffForHumans([
+                            <small class="mr-3 text-red">Deadline: {{ $assignment->deadline }} (@if (!$assignment->isClosed()) {{ $assignment->deadline->diffForHumans([
                                 'syntax' => Carbon\CarbonInterface::DIFF_RELATIVE_TO_NOW,
                                 'options' => Carbon\Carbon::JUST_NOW | Carbon\Carbon::ONE_DAY_WORDS | Carbon\Carbon::TWO_DAY_WORDS,
                             ]) }}

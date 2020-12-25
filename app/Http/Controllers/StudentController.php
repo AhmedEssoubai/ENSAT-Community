@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\User;
 use App\Student;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 
 class StudentController extends Controller
@@ -24,17 +25,21 @@ class StudentController extends Controller
      *
      * @return \Illuminate\Contracts\Support\Renderable
      */
-    public function search($value)
+    public function search($class, $value)
     {
-        global $v;
+        global $v, $c;
         $v = $value;
+        $c = $class;
         $users = User::where(function($query) {
                         global $v;
                         $query->where('firstname', 'like', '%'.$v.'%')
                             ->orWhere('lastname', 'like', '%'.$v.'%');
                     })->where('status', 'membre')
                     ->where('profile_type', 'App\Student')
-                    ->get(['id', 'firstname', 'lastname', 'image', 'profile_id', 'profile_type']);
+                    ->whereHasMorph('profile', 'App\Student', function(Builder $query){
+                        global $c;
+                        $query->where('class_id', $c);
+                    })->get(['id', 'firstname', 'lastname', 'image', 'profile_id', 'profile_type']);
         $names = array();
         $ids = array();
         $imgs = array();

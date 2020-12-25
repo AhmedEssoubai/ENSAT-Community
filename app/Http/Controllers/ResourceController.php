@@ -100,6 +100,8 @@ class ResourceController extends CommunityController
     public function show(Resource $resource)
     {
         Gate::authorize('class-member', $resource->course->classe);
+        if (Auth::user()->isStudent())
+            $resource->views()->syncWithoutDetaching(Auth::user()->profile_id);
         return view('resource.show', ['resource' => $resource, 'user' => Auth::id(), 'class' => $resource->course->classe]);
     }
 
@@ -205,5 +207,25 @@ class ResourceController extends CommunityController
                 ]);
             }
         }
+    }
+
+    public function studentsViewHistory(Resource $resource)
+    {
+        $this->authorize('delete', $resource);
+        
+        $students = $resource->class->students()->with('user:id,firstname,lastname,image,profile_id,profile_type')->get();
+        $views = $resource->views()->where('seen_id', $resource->id)->select('id')->get();
+        $names = array();
+        $ids = array();
+        $imgs = array();
+        $dates = array();
+        foreach ($students as $student) {
+            array_push($names, $student->user->firstname." ".$student->user->lastname);
+            array_push($ids, $student->user->profile_id);
+            array_push($imgs, $student->user->image);
+            $view = $views->find($student->user->profile_id);
+            array_push($dates, $view ? $view->pivot->seen_at : null);
+        }
+        return response()->json(['names' => $names, 'ids' => $ids, 'imgs' => $imgs, 'dates' => $dates]);
     }
 }

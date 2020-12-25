@@ -43,6 +43,14 @@ class Resource extends Model
         return $this->morphMany('App\File', 'container');
     }
 
+    /**
+     * The students that view the resource
+     */
+    public function views()
+    {
+        return $this->morphToMany('App\Student', 'seen', 'views')->withPivot('seen_at');
+    }
+
     public function can_delete(User $user)
     {
         return true;

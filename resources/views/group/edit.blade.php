@@ -57,7 +57,7 @@
 @push('scripts')
     <script src="{{ asset('js/members-scripts.js') }}"></script>
     <script>
-        src = "/search/students/";
+        src = "/search/students/{{ $class->id}}/";
         selected_name = "students";
         @foreach ($group->students as $student)
         selected.push({{ $student->id }});

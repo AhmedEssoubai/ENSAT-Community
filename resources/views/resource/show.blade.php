@@ -43,6 +43,18 @@
                         </div>
                     </div>
                 </div>
+                <div class="mt-3">
+                    <div id="view-history" class="py-3 lead text-dgray post cursor-pointer">
+                        Students views history
+                    </div>
+                    <div class="history-list text-dgray border-top" style="display: none">
+                        <div class="loading text-center text-dgray py-3">
+                            <div class="spinner-border" role="status">
+                              <span class="sr-only">Loading...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
             {{-- Side --}}
             <div class="col-3 d-none d-lg-block">
@@ -102,7 +114,13 @@
 @endsection
 
 @push('scripts')
-    <script type="text/javascript" src="{{ asset("js/alert-scripts.js") }}"></script>
+    @can('delete', $resource)
+        <script type="text/javascript" src="{{ asset("js/alert-scripts.js") }}"></script>
+        <script type="text/javascript" src="{{ asset("js/views-history-scripts.js") }}"></script>
+        <script type="text/javascript">
+            resource = {{ $resource->id }};
+        </script>
+    @endcan
     <script type="text/javascript">
         bringFullLifeToLinks("post_content");
     </script>

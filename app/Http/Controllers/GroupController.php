@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Classe;
 use App\Group;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Log;
 
@@ -105,6 +106,10 @@ class GroupController extends Controller
         Gate::authorize('class-member', $group->classe);
         $this->authorize('delete', $group);
 
+        $group->assignments()->detach();
+
+        $group->submissions()->delete();
+        
         $group->delete();
         
         return back();

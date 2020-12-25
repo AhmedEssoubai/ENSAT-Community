@@ -53,4 +53,12 @@ class Student extends Model
     {
         return $this->morphMany('App\Submission', 'submissions', 'submitter_type', 'submitter_id', 'id');
     }
+
+    /**
+     * Get all of the students that are assigned to this assignment.
+     */
+    public function resourcesViews()
+    {
+        return $this->morphedByMany('App\Resource', 'seen', 'views')->withPivot('seen_at');
+    }
 }

@@ -84,7 +84,7 @@ class Assignment extends Model
     /**
      * Is the assignment past it's deadline
      */
-    public function is_closed()
+    public function isClosed()
     {
         return ((new Carbon()) >= $this->deadline);//diffForHumans
     }
@@ -92,7 +92,7 @@ class Assignment extends Model
     /**
      * Is the assignment past it's deadline
      */
-    public function is_all_submitted()
+    public function isAllSubmitted()
     {
         return $this->submissions_count == $this->assigned_to_count;
     }
@@ -140,12 +140,12 @@ class Assignment extends Model
         {
             if ($this->submissions_count > 0)
                 return 'submitted';
-            if ($this->is_closed())
+            if ($this->isClosed())
                 return 'closed';
             if ($this->deadline->diffInDays() <= 2)
                 return 'near';
         }
-        else if ($this->is_all_submitted())
+        else if ($this->isAllSubmitted())
             return 'all submitted';
         return 'normal';
     }

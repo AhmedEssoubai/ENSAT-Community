@@ -102,6 +102,12 @@ body{
     /*border-bottom: 1px solid rgba(50, 50, 55, 0.6)*/
     box-shadow: 0 1px 5px rgba(50, 50, 55, 0.2);
 }
+.line-grey {
+    height: 1px;
+    background-color: #b7c3c9;
+    /*border-bottom: 1px solid rgba(50, 50, 55, 0.6)*/
+    box-shadow: 0 1px 5px rgb(183, 195, 201, 0.5);
+}
 /* RKM line */
 .rkm-line{
     height: 1px;
@@ -941,4 +947,8 @@ select.rkm-form-control:focus{
 /* Border */
 .rounded-xlg{
     border-radius: .4rem;
+}
+/* Cursor */
+.cursor-pointer{
+    cursor: pointer;
 }

@@ -44,6 +44,11 @@ class AdminController extends Controller
         $this->authorize('delete', $user);
 
         //$user->profile->delete();
+        if ($user->isStudent())
+        {
+            $user->profile()->assignments()->detach();
+            $user->profile()->submissions()->delete();
+        }
 
         $user->delete();
         

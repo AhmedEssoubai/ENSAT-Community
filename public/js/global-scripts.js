@@ -137,3 +137,46 @@ function stopEventPropagation(e)
     e.cancelBubble = true;
     if (e.stopPropagation) e.stopPropagation();*/
 }
+
+function diffForHumans(datetime)
+{
+    var posted_mil = (new Date()).getTime() - (new Date(datetime)).getTime();
+    var posted_value = posted_mil / 100;
+    var posted_type = "second" + (posted_value >= 2 ? "s" : "");
+    if (posted_value > 59)
+    {
+        posted_value = posted_value / 60;
+        posted_type = "minute" + (posted_value >= 2 ? "s" : "");
+        if (posted_value >= 60)
+        {
+            posted_value = posted_value / 60;
+            posted_type = "hour" + (posted_value >= 2 ? "s" : "");
+            if (posted_value >= 60)
+            {
+                posted_value = posted_value / 60;
+                posted_type = "hour" + (posted_value >= 2 ? "s" : "");
+                if (posted_value >= 24)
+                {
+                    posted_value = posted_value / 24;
+                    posted_type = "day" + (posted_value >= 2 ? "s" : "");
+                    if (posted_value >= 7)
+                    {
+                        posted_value = posted_value / 7;
+                        posted_type = "week" + (posted_value >= 2 ? "s" : "");
+                        if (posted_value >= 4.3)
+                        {
+                            posted_value = posted_value / 7;
+                            posted_type = "month" + (posted_value >= 2 ? "s" : "");
+                            if (posted_value >= 12)
+                            {
+                                posted_value = posted_value / 12;
+                                posted_type = "year" + (posted_value >= 2 ? "s" : "");
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return Math.round(posted_value) + ' ' + posted_type + ' ago';
+}

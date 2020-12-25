@@ -88,29 +88,6 @@ function addComment(discussion_id, img, fullname) {
         if (this.readyState == 4 && this.status == 200) {
             document.getElementById("count").innerHTML = Number(document.getElementById("count").innerHTML) + 1;
             var comt = JSON.parse(this.responseText);
-            var posted_mil = (new Date()).getTime() - (new Date(comt.created_at)).getTime();
-            var posted_value = posted_mil / 100;
-            var posted_type = "second" + (posted_value > 1 ? "s" : "");
-            if (posted_value > 59)
-            {
-                posted_value = posted_value / 60;
-                posted_type = "minute" + (posted_value > 1 ? "s" : "");
-                if (posted_value > 59)
-                {
-                    posted_value = posted_value / 60;
-                    posted_type = "hourse" + (posted_value > 1 ? "s" : "");
-                    if (posted_value > 59)
-                    {
-                        posted_value = posted_value / 60;
-                        posted_type = "hourse" + (posted_value > 1 ? "s" : "");
-                        if (posted_value > 23)
-                        {
-                            posted_value = posted_value / 24;
-                            posted_type = "day" + (posted_value > 1 ? "s" : "");
-                        }
-                    }
-                }
-            }
             
             var comments = document.getElementById("comments");
             comments.innerHTML = 
@@ -122,7 +99,7 @@ function addComment(discussion_id, img, fullname) {
                             '<div class="d-flex align-items-center">' + 
                             '<strong class="text-black my-0 mr-2">' + fullname + '</strong>' + 
                             '<strong class="text-mgray mr-2"> • </strong>' + 
-                            '<small class="text-mgray">' + Math.round(posted_value) + ' ' + posted_type + ' ' + 'ago</small>' + 
+                            '<small class="text-mgray">' + diffForHumans(new Date(comt.created_at)) + '</small>' + 
                             '</div>' + 
                             '<div class="mt-3">' + 
                             '<p class="text-mgray mb-3" id="cmt_' + comt.id + '_content">' + comt.content + '</p>' + 
