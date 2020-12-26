@@ -6,6 +6,7 @@ use App\Classe;
 use App\File;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
 
@@ -35,6 +36,8 @@ class FileController extends Controller
             global $f;
             $query->where('resources.id', $f->container_id);
         })->first());
+        if (Auth::user()->isStudent())
+            $file->views()->syncWithoutDetaching(Auth::user()->profile_id);
         return Storage::download('uploads/resources/' . $file->url, $file->name);
     }
 
@@ -51,6 +54,8 @@ class FileController extends Controller
             global $f;
             $query->where('assignments.id', $f->container_id);
         })->first());
+        if (Auth::user()->isStudent())
+            $file->views()->syncWithoutDetaching(Auth::user()->profile_id);
         return Storage::download('uploads/assignments/' . $file->url, $file->name);
     }
 

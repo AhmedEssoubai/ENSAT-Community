@@ -345,17 +345,30 @@ class AssignmentController extends CommunityController
         }
         $students = $students->with('user:id,firstname,lastname,image,profile_id,profile_type')->get();
         $views = $assignment->views()->where('seen_id', $assignment->id)->select('id')->get();
+        $files = $assignment->files()->select('id')->with('views:id')->get();
         $names = array();
         $ids = array();
         $imgs = array();
         $dates = array();
+        $files_history = array();
         foreach ($students as $student) {
             array_push($names, $student->user->firstname." ".$student->user->lastname);
             array_push($ids, $student->user->profile_id);
             array_push($imgs, $student->user->image);
             $view = $views->find($student->user->profile_id);
             array_push($dates, $view ? $view->pivot->seen_at : null);
+            $student_files_history = array();
+            foreach ($files as $file)
+            {
+                $fview = $file->views->find($student->user->profile_id);
+                array_push($student_files_history, $fview ? $fview->pivot->seen_at : null);
+            }
+            array_push($files_history, $student_files_history);
         }
-        return response()->json(['names' => $names, 'ids' => $ids, 'imgs' => $imgs, 'dates' => $dates]);
+        return response()->json(['names' => $names, 
+                                'ids' => $ids, 
+                                'imgs' => $imgs, 
+                                'dates' => $dates, 
+                                'files_history' => $files_history]);
     }
 }

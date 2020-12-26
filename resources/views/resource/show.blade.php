@@ -122,6 +122,11 @@
         <script type="text/javascript" src="{{ asset("js/views-history-scripts.js") }}"></script>
         <script type="text/javascript">
             item = {{ $resource->id }};
+            files = [
+                @foreach ($resource->files as $file)
+                    '{{ $file->name }}', 
+                @endforeach
+            ];
         </script>
     @endcan
     <script type="text/javascript">

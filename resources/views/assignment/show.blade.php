@@ -168,6 +168,11 @@
         <script type="text/javascript">
             item = {{ $assignment->id }};
             base_link = 'assignments';
+            files = [
+                @foreach ($assignment->files as $file)
+                    '{{ $file->name }}', 
+                @endforeach
+            ];
         </script>
     @else
         <script type="text/javascript" src="{{ asset("js/files-scripts.js") }}"></script>

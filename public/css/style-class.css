@@ -135,6 +135,9 @@
 .post:hover .icon-hidden{
     opacity: 1;
 }
+.post-dark:hover{
+    background-color: #ececec;
+}
 /* Class Card */
 .class-card{
     border-radius: 15px;

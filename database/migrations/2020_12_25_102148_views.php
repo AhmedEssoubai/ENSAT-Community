@@ -19,7 +19,7 @@ class Views extends Migration
             $table->integer('seen_id');
             $table->string('seen_type');
             $table->timestamp('seen_at')->default(DB::raw('CURRENT_TIMESTAMP'));
-            $table->primary(['student_id', 'seen_id']);
+            $table->primary(['student_id', 'seen_type', 'seen_id']);
         });
     }
 

@@ -19,6 +19,14 @@ class File extends Model
     }
 
     /**
+     * The students that view the resource
+     */
+    public function views()
+    {
+        return $this->morphToMany('App\Student', 'seen', 'views')->withPivot('seen_at');
+    }
+
+    /**
      * Get file name
      */
     /*public function file_name()
