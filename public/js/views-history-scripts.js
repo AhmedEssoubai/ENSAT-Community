@@ -36,7 +36,7 @@ jQuery(function(){
                             '<div class="border-top pl-md-5 mt-3">' + files_history + '</div>' + 
                         '</div>' : '') + '</div>';
                     }
-                    $(this).next().children('.loading:first').hide();
+                    $(this).next().children('.loading:first').slideUp();
                     let hl = $(this).next().children('.history-list:first');
                     hl.html(items);
                     hl.slideDown('slow');

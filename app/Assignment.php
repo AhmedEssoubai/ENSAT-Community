@@ -74,10 +74,23 @@ class Assignment extends Model
     public function getSubmission($user)
     {
         if ($user->isStudent())
+        {
+            global $groups, $student;
+            $student = $user->profile_id;
+            $groups = $this->class->studentGroups($student);
             return $this->submissions()
-            ->select('id', 'assignment_id', 'submitter_id', 'submitter_type')
-            ->with('files')
-            ->where('submitter_id', $user->profile_id)->first();
+                ->select('id', 'assignment_id', 'submitter_id', 'submitter_type')
+                ->with('files')
+                ->where(function (Builder $query) {
+                    global $student;
+                    $query->where('submitter_type', 'App\Student')
+                        ->where('submitter_id', $student);
+                })->orWhere(function (Builder $query) {
+                    global $groups;
+                    $query->where('submitter_type', 'App\Group')
+                        ->whereIn('submitter_id', $groups);
+                })->first();
+        }
         return null;
     }
 

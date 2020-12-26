@@ -65,11 +65,24 @@
                 </div>
                 @can('delete', $assignment)
                 <div class="mt-3">
+                    <div id="submissions" class="py-3 lead text-dgray post cursor-pointer">
+                        {{ $assignment->to_groups ? 'Groups' : 'Students' }} submissions
+                    </div>
+                    <div class="text-dgray border-top" style="display: none">
+                        <div class="loading text-center text-dgray py-4">
+                            <div class="spinner-border" role="status">
+                              <span class="sr-only">Loading...</span>
+                            </div>
+                        </div>
+                        <div class="submissions-list" style="display: none"></div>
+                    </div>
+                </div>
+                <div class="mt-3">
                     <div id="view-history" class="py-3 lead text-dgray post cursor-pointer">
                         Students views history
                     </div>
                     <div class="text-dgray border-top" style="display: none">
-                        <div class="loading text-center text-dgray py-3">
+                        <div class="loading text-center text-dgray py-4">
                             <div class="spinner-border" role="status">
                               <span class="sr-only">Loading...</span>
                             </div>
@@ -91,7 +104,7 @@
                                     <div id="sub_files_list" class="attachments-small my-4">
                                     @foreach($submission->files as $file)
                                         <a href="{{ route('files.submission', $file->id) }}" target="_blank" class="text-dgray attachment-box">
-                                            <div class="line-clamp" title="2000px-QlikTech_20xx_logo.svg_.png" title="{{ $file->name }}">
+                                            <div class="line-clamp" title="{{ $file->name }}">
                                                 <span class="mr-4 text-mgray"><i class="fas fa-paperclip"></i></span>{{ $file->name }}
                                             </div>
                                         </a>
@@ -100,18 +113,22 @@
                                 </div>
                             @endif
                         @else
-                            <form id="submit-form" method="POST" enctype="multipart/form-data" action="{{ route('submissions') }}">
-                                @csrf
-                                <input type="hidden" name="assignment" value="{{ $assignment->id }}"/>
-                                <div class="mt-4 text-center">
-                                    <div id="sub_files_list" class="attachments-small my-4">
+                            @if ($assignment->isClosed())
+                                <div class="text-center text-red py-4">The submission is closed</div>
+                            @else
+                                <form id="submit-form" method="POST" enctype="multipart/form-data" action="{{ route('submissions') }}">
+                                    @csrf
+                                    <input type="hidden" name="assignment" value="{{ $assignment->id }}"/>
+                                    <div class="mt-4 text-center">
+                                        <div id="sub_files_list" class="attachments-small my-4">
+                                        </div>
+                                        <button type="button" onclick="create_attachment('sub_files_list')" class="rbo-secondary border-0 pl-3"><span class="mr-2"><i class="fas fa-plus"></i></span> Add files</button>
                                     </div>
-                                    <button type="button" onclick="create_attachment('sub_files_list')" class="rbo-secondary border-0 pl-3"><span class="mr-2"><i class="fas fa-plus"></i></span> Add files</button>
-                                </div>
-                                <div class="mt-4 d-flex justify-content-center">
-                                    <button id="submit_work" type="button" class="rb rb-primary text-up text-bold" data-toggle="modal" data-target="#submit_alert" disabled>submit</button>
-                                </div>
-                            </form>
+                                    <div class="mt-4 d-flex justify-content-center">
+                                        <button id="submit_work" type="button" class="rb rb-primary text-up text-bold" data-toggle="modal" data-target="#submit_alert" disabled>submit</button>
+                                    </div>
+                                </form>
+                            @endif
                         @endisset
                     </div>
                 </div>
@@ -176,6 +193,6 @@
         </script>
     @else
         <script type="text/javascript" src="{{ asset("js/files-scripts.js") }}"></script>
-        <script type="text/javascript" src="{{ asset("js/submission-scripts.js") }}"></script>
     @endif
+    <script type="text/javascript" src="{{ asset("js/submission-scripts.js") }}"></script>
 @endpush

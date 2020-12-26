@@ -147,6 +147,7 @@ class ResourceController extends CommunityController
             $resource->files->except($eattachments)->each(function ($file, $key) {
                 global $files;
                 $files->push($file->id);
+                $files->views()->detach();
                 Storage::delete('uploads/resources/'.$file->url);
             });
     
@@ -175,6 +176,7 @@ class ResourceController extends CommunityController
         $resource->files->each(function ($file, $key) {
             global $files;
             $files->push($file->id);
+            $files->views()->detach();
             Storage::delete('uploads/resources/'.$file->url);
         });
 
@@ -182,6 +184,7 @@ class ResourceController extends CommunityController
 
         $id = $resource->class->id;
 
+        $resource->views()->detach();
         $resource->delete();
         
         return redirect(route('classes.resources', $id));

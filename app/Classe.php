@@ -54,6 +54,23 @@ class Classe extends Model
     }
 
     /**
+     * The groups ids of a student in this class
+     */
+    public function studentGroups($student_id)
+    {
+        global $id;
+        $id = $student_id;
+        $groups = $this->groups()->whereHas('students', function (Builder $query) {
+            global $id;
+            $query->where('id', $id);
+        })->select('id', 'class_id')->get();
+        $groups_ids = array();
+        foreach($groups as $group)
+            array_push($groups_ids, $group->id);
+        return $groups_ids;
+    }
+
+    /**
      * The courses of this class
      */
     public function courses()

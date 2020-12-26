@@ -7,6 +7,7 @@ use App\Submission;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
 
 class SubmissionController extends Controller
@@ -20,7 +21,74 @@ class SubmissionController extends Controller
     {
         $this->middleware('auth');
         $this->middleware('not-pending');
-        $this->middleware('student');
+    }
+
+    /**
+     * Get the assigned students and there submissions
+     */
+    public function index(Assignment $assignment)
+    {
+        $this->authorize('delete', $assignment);
+        global $id;
+        $id = $assignment->id;
+        $assigneds = null;
+        if ($assignment->all)
+        {
+            if ($assignment->to_groups)
+                $assigneds = $assignment->class->groups;
+            else
+                $assigneds = $assignment->class->activeStudents()->with('user:id,firstname,lastname,image,profile_id,profile_type')->get();
+        }
+        else
+        {
+            if ($assignment->to_groups)
+                $assigneds = $assignment->groups;
+            else
+                $assigneds = $assignment->students()->with('user:id,firstname,lastname,image,profile_id,profile_type')->get();
+        }
+        $submissions = $assignment->submissions()->with('files')->get();
+        $names = array();
+        $ids = array();
+        $imgs = array();
+        $dates = array();
+        $files = array();
+        foreach ($assigneds as $assigned) {
+            $id = 0;
+            if ($assignment->to_groups)
+            {
+                array_push($names, $assigned->label);
+                array_push($ids, $assigned->id);
+                $id = $assigned->id;
+            }
+            else
+            {
+                array_push($names, $assigned->user->firstname." ".$assigned->user->lastname);
+                array_push($ids, $assigned->user->profile_id);
+                array_push($imgs, $assigned->user->image);
+                $id = $assigned->user->profile_id;
+            }
+            $exists = false;
+            foreach ($submissions as $submission)
+            {
+                if ($submission->submitter_id == $id)
+                {
+                    $submission_files = array();
+                    foreach ($submission->files as $file)
+                        $submission_files += [$file->id => $file->name];
+                    $files += [$id => $submission_files];
+                    array_push($dates, $submission->created_at);
+                    $exists = true;
+                    break;
+                }
+            }
+            if (!$exists)
+                array_push($dates, null);
+        }
+        return response()->json(['names' => $names, 
+                                'ids' => $ids, 
+                                'imgs' => $imgs, 
+                                'dates' => $dates, 
+                                'files' => $files]);
     }
     
     /**
@@ -31,8 +99,11 @@ class SubmissionController extends Controller
      */
     public function store(Request $request)
     {
-        if (Auth::user()->isStudent() && !Assignment::findOrFail(request('assignment'))->isAssignedTo(Auth::user()->profile_id))
+        $assignment = Assignment::findOrFail(request('assignment'));
+        if (Auth::user()->isStudent() && !$assignment->isAssignedTo(Auth::user()->profile_id))
             abort(403, 'The work is not assigned to you.');
+        if ($assignment->isClosed())
+            abort(403, 'The assignment is closed for submission');
         $data = request()->validate([
             'assignment' => ['required', 'integer'],
             'attachments' => ['required', 'array'],
@@ -41,7 +112,6 @@ class SubmissionController extends Controller
 
         $attachments = $request->file('attachments');
 
-        $assignment = Assignment::find($data['assignment']);
         if ($assignment->to_groups)
             $submitter = $assignment->groups()->whereHas('students', function (Builder $query) {
                 $query->where('students.id', Auth::user()->profile_id);

@@ -34,6 +34,7 @@ class AssignmentController extends CommunityController
         $students_names = [];
         $groups_ids = [];
         $groups_names = [];
+        global $groups;
         if (Auth::user()->isProfessor())
         {
             foreach(Student::where('class_id', $class->id)
@@ -49,10 +50,7 @@ class AssignmentController extends CommunityController
         }
         else
         {
-            global $has_groups;
-            $has_groups = $class->groups()->whereHas('students', function (Builder $query) {
-                $query->where('id', Auth::user()->profile_id);
-            })->select('id', 'class_id')->exists();
+            $groups = $class->studentGroups(Auth::user()->profile_id);
             $assignments->where(function ($query) {
                 $query->where(function ($query) {
                     $query->where('to_groups', false)
@@ -67,8 +65,8 @@ class AssignmentController extends CommunityController
                 })->orWhere(function ($query) {
                     $query->where('to_groups', true)
                         ->where(function ($query) {
-                            global $has_groups;
-                            if ($has_groups)
+                            global $groups;
+                            if (count($groups))
                                 $query->where('all', true)
                                     ->orWhere(function ($query) {
                                     $query->whereHas('groups', function (Builder $query) {
@@ -89,7 +87,14 @@ class AssignmentController extends CommunityController
                         });
                 });
             })->withCount(['submissions' => function (Builder $query) {
-                $query->where('submitter_id', Auth::user()->profile_id);
+                $query->where(function (Builder $query) {
+                    $query->where('submitter_type', 'App\Student')
+                        ->where('submitter_id', Auth::user()->profile_id);
+                })->orWhere(function (Builder $query) {
+                    global $groups;
+                    $query->where('submitter_type', 'App\Group')
+                        ->whereIn('submitter_id', $groups);
+                });
             }]);
         }
         // Filter data
@@ -109,7 +114,14 @@ class AssignmentController extends CommunityController
                     $assignments->has('submissions', DB::raw('assigned_to_count'))->orderBy('id', 'desc');
                 else
                     $assignments->whereHas('submissions', function (Builder $query) {
-                        $query->where('submitter_id', Auth::user()->profile_id);
+                        $query->where(function (Builder $query) {
+                            $query->where('submitter_type', 'App\Student')
+                                ->where('submitter_id', Auth::user()->profile_id);
+                        })->orWhere(function (Builder $query) {
+                            global $groups;
+                            $query->where('submitter_type', 'App\Group')
+                                ->whereIn('submitter_id', $groups);
+                        });
                     })->orderBy('id', 'desc');
             // Near
             else
@@ -119,7 +131,14 @@ class AssignmentController extends CommunityController
                     ->orderBy('deadline');
                 if (Auth::user()->isStudent())
                     $assignments->whereDoesntHave('submissions', function (Builder $query) {
-                        $query->where('submitter_id', Auth::user()->profile_id);
+                        $query->where(function (Builder $query) {
+                            $query->where('submitter_type', 'App\Student')
+                                ->where('submitter_id', Auth::user()->profile_id);
+                        })->orWhere(function (Builder $query) {
+                            global $groups;
+                            $query->where('submitter_type', 'App\Group')
+                                ->whereIn('submitter_id', $groups);
+                        });
                     });
             }
         }
@@ -243,9 +262,9 @@ class AssignmentController extends CommunityController
         }
         return view('assignment.show', 
         ['assignment' => $assignment, 
+        'class' => $assignment->class, 
         'submission' => $assignment->getSubmission(Auth::user()),
-        'user' => Auth::id(), 
-        'class' => $assignment->course->classe]);
+        'user' => Auth::id()]);
     }
 
     /**
@@ -301,6 +320,7 @@ class AssignmentController extends CommunityController
         $assignment->files->each(function ($file, $key) {
             global $files;
             $files->push($file->id);
+            $files->views()->detach();
             Storage::delete('uploads/assignments/'.$file->url);
         });
         $assignment->submissions()->files->each(function ($file, $key) {
@@ -313,6 +333,7 @@ class AssignmentController extends CommunityController
 
         $id = $assignment->class_id;
 
+        $assignment->views()->detach();
         $assignment->delete();
         
         return redirect('/classes/' . $id . '/assignments');
@@ -329,7 +350,7 @@ class AssignmentController extends CommunityController
             if ($assignment->to_groups)
                 $students = $assignment->class->activeStudents()->whereHas('groups');
             else
-                $students = $assignment->class->activeStudents()->whereHas('groups');
+                $students = $assignment->class->activeStudents();
         }
         else
         {
@@ -344,7 +365,7 @@ class AssignmentController extends CommunityController
                 $students = $assignment->students();
         }
         $students = $students->with('user:id,firstname,lastname,image,profile_id,profile_type')->get();
-        $views = $assignment->views()->where('seen_id', $assignment->id)->select('id')->get();
+        $views = $assignment->views()->select('id')->get();
         $files = $assignment->files()->select('id')->with('views:id')->get();
         $names = array();
         $ids = array();
