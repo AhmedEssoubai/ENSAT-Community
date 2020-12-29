@@ -50,14 +50,4 @@ class Resource extends Model
     {
         return $this->morphToMany('App\Student', 'seen', 'views')->withPivot('seen_at');
     }
-
-    public function can_delete(User $user)
-    {
-        return true;
-    }
-
-    public function can_edit(User $user)
-    {
-        return true;
-    }
 }

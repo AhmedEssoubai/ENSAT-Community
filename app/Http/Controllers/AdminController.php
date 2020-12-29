@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\File;
 use App\User;
 use App\Professor;
 use App\Student;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class AdminController extends Controller
 {
@@ -47,6 +49,16 @@ class AdminController extends Controller
         if ($user->isStudent())
         {
             $user->profile()->assignments()->detach();
+
+            global $files;
+            $files = collect([]);
+            $user->profile()->submissions()->files()->get()->each(function ($file, $key) {
+                global $files;
+                $files->push($file->id);
+                Storage::delete('uploads/submissions/'.$file->url);
+            });
+            File::destroy($files);
+
             $user->profile()->submissions()->delete();
         }
 

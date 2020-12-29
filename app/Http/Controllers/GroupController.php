@@ -3,11 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Classe;
+use App\File;
 use App\Group;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class GroupController extends Controller
 {
@@ -107,6 +109,15 @@ class GroupController extends Controller
         $this->authorize('delete', $group);
 
         $group->assignments()->detach();
+
+        global $files;
+        $files = collect([]);
+        $group->submissions()->files()->get()->each(function ($file, $key) {
+            global $files;
+            $files->push($file->id);
+            Storage::delete('uploads/submissions/'.$file->url);
+        });
+        File::destroy($files);
 
         $group->submissions()->delete();
         

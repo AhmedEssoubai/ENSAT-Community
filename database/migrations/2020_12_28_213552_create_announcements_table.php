@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateSubmissionsTable extends Migration
+class AnnouncementsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,13 +13,12 @@ class CreateSubmissionsTable extends Migration
      */
     public function up()
     {
-        Schema::create('submissions', function (Blueprint $table) {
+        Schema::create('announcements', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('assignment_id')->constrained()->onDelete('cascade');
-            $table->integer('submitter_id');
-            $table->string('submitter_type');
+            $table->string('title', 125);
+            $table->text('content');
+            $table->foreignId('professor_id')->constrained()->onDelete('cascade');
             $table->timestamps();
-            $table->unique(['assignment_id', 'submitter_id', 'submitter_id']);
         });
     }
 
@@ -30,6 +29,6 @@ class CreateSubmissionsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('submissions');
+        Schema::dropIfExists('announcements');
     }
 }

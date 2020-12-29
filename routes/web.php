@@ -110,6 +110,8 @@ Route::get('/profile/{user:cin}/edit', 'ProfileController@edit')->name('profile.
 Route::patch('/profile/{user:cin}', 'ProfileController@update')->name('profile.update');
 Route::patch('/profile/security/{user:cin}', 'ProfileController@updateSecurity')->name('profile.update.security');
 // Announcement
-Route::get('/announcements', function(){
-    return view('announcement.index');
-});
+Route::get('/announcements', 'AnnouncementController@index')->name('announcements');
+Route::post('/announcements', 'AnnouncementController@store')->name('announcements')->middleware('professor');
+Route::get('/announcements/{announcement}/edit', 'AnnouncementController@edit')->name('announcements.edit')->middleware('professor');
+Route::patch('/announcements/{announcement}', 'AnnouncementController@update')->name('announcements.update')->middleware('professor');
+Route::get('/announcements/d/{announcement}', 'AnnouncementController@destroy')->name('announcements.destroy')->middleware('professor');

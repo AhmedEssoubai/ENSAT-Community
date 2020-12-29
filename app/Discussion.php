@@ -59,14 +59,4 @@ class Discussion extends Model
     {
         return $this->bookmarked_users->contains(Auth::id());
     }
-
-    public function can_delete(User $user)
-    {
-        return true;
-    }
-
-    public function can_edit(User $user)
-    {
-        return $user->id == $this->user->id;
-    }
 }

@@ -10,6 +10,11 @@
                     You have 0
                 </p>
             </div>
+            @can('create', App\Announcement::class)
+                <div class="mb-5 mx-3">
+                    <button class="rb rb-primary rbl w-100" data-toggle="modal" data-target="#new_announcement">new announcement</button>
+                </div>
+            @endcan
         </div>
         <div class="row mb-5 chronological-list">
             <div class="col-12 mb-3 d-flex">
@@ -30,38 +35,23 @@
                     </div>
                 </div>
                 <div class="chronological-contents">
-                    <div class="chronological-contents-item">
-                        <div class="chronological-contents-type">
-                            <div class="chronological-contents-type-icon text-dgray"><i class="fas fa-bullhorn"></i></div>
+                    @foreach ($day_announcements as $announcement)
+                        <div class="chronological-contents-item">
+                            <div class="chronological-contents-type">
+                                <div class="chronological-contents-type-icon text-dgray"><i class="fas fa-bullhorn"></i></div>
+                            </div>
+                            <h4><a class="_link" href="">{{ $announcement->title }}</a></h4>
+                            <div class="mt-2 mb-3 text-dark">by {{ $announcement->professor->user->firstname }} {{ $announcement->professor->user->lastname }}</div>
+                            <div class="text-dgray" id="post_content_{{ $announcement->id }}">
+                                {{ $announcement->content }}
+                            </div>
                         </div>
-                        <h4><a class="_link" href="">Ipsum dolor sit amet consectetur adipisicing elit.</a></h4>
-                        <div class="mt-2 mb-3 text-dark">by Hassan Badir</div>
-                        <div class="text-dgray">
-                            Lorem ipsum dolor sit, amet consectetur adipisicing elit. Explicabo, voluptatem minus. Cupiditate alias tenetur temporibus ratione mollitia nobis, consequatur assumenda, dignissimos iusto officiis saepe debitis adipisci dolore perferendis! Pariatur, minima?
-                        </div>
-                    </div>
-                    <div class="chronological-contents-item">
-                        <div class="chronological-contents-type">
-                            <div class="chronological-contents-type-icon text-dgray"><i class="fas fa-exclamation-triangle"></i></div>
-                        </div>
-                        <h4><a class="_link" href="">Ipsum dolor sit amet consectetur adipisicing elit.</a></h4>
-                        <div class="mt-2 mb-3 text-dark">by Hassan Badir</div>
-                        <div class="text-dgray">
-                            Lorem ipsum dolor sit, amet consectetur adipisicing elit. Explicabo, voluptatem minus. Cupiditate alias tenetur temporibus ratione mollitia nobis, consequatur assumenda, dignissimos iusto officiis saepe debitis adipisci dolore perferendis! Pariatur, minima?
-                        </div>
-                    </div>
-                    <div class="chronological-contents-item">
-                        <div class="chronological-contents-type">
-                            <div class="chronological-contents-type-icon text-dgray"><i class="fas fa-star"></i></div>
-                        </div>
-                        <h4><a class="_link" href="">Ipsum dolor sit amet consectetur adipisicing elit.</a></h4>
-                        <div class="mt-2 mb-3 text-dark">by Hassan Badir</div>
-                        <div class="text-dgray">
-                            Lorem ipsum dolor sit, amet consectetur adipisicing elit. Explicabo, voluptatem minus. Cupiditate alias tenetur temporibus ratione mollitia nobis, consequatur assumenda, dignissimos iusto officiis saepe debitis adipisci dolore perferendis! Pariatur, minima?
-                        </div>
-                    </div>
+                    @endforeach
                 </div>
             </div>
+            {{-- <i class="fas fa-bullhorn"></i>
+            <i class="fas fa-star"></i>
+            <i class="fas fa-exclamation-triangle"></i>  --}}
             {{--@foreach ($my_classes as $c)
             <div class="col-sm-6 col-md-4 col-lg-4 my-3">
                 <div class="class-card card">
@@ -94,6 +84,93 @@
             </div>
             @endforeach--}}
         </div>
+        @can('create', App\Announcement::class)
+            <div class="modal fade rkm-model" id="delete_post" tabindex="-1" role="dialog" aria-labelledby="dp-modalLabel" aria-hidden="true">
+                <div class="modal-dialog rkm-dialog-message" role="document">
+                    <div class="modal-content">
+                        <div class="modal-body">
+                            <div class="container h-100">
+                                <h4 class="text-center text-black">Delete the announcement</h4>
+                                <div class="text-center text-mgray mb-4">Are you sure of this?</div>
+                                <div class="d-flex justify-content-center mt-2">
+                                    <button type="button" class="rbo-secondary mx-2" data-dismiss="modal">Close</button>
+                                    <button type="submit" class="rb rb-danger mx-2" data-dismiss="modal" onclick="deletePost('resource')">Delete</button>
+                                </div>
+                                <input id="d-post-id" type="hidden" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal fade rkm-model" id="new_announcement" tabindex="-1" role="dialog" aria-labelledby="dp-modalLabel" aria-hidden="true">
+                <div class="modal-dialog rkm-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header border-0 right-corner">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="container h-100 py-5">
+                                <div class="row justify-content-md-center h-100 align-items-center pt-3">
+                                    <form class="col-sm-12 col-md-8 col-lg-6" method="POST" enctype="multipart/form-data" action="{{ route('resources') }}">
+                                        @csrf
+                                        <div class="mb-5 d-flex justify-content-between align-items-center">
+                                            <h2 class="text-center">New announcement</h2>
+                                        </div>
+                                        <div class="form-group my-3">
+                                            <label for="title" class="rkm-control-label">Title</label>
+                                            <input id="title" type="text" name="title" maxlength="125" class="rkm-form-control @error('title') is-invalid @enderror" value="{{ old('title') }}" placeholder="Enter Title" required />
+                                            @error('title')
+                                                <span class="invalid-feedback" role="alert">
+                                                    <strong>{{ $message }}</strong>
+                                                </span>
+                                            @enderror
+                                        </div>
+                                        <div class="form-group my-3">
+                                            <label for="content" class="rkm-control-label">Content</label>
+                                            <textarea id="content" class="rkm-form-control @error('content') is-invalid @enderror" name="content" rows="4" maxlength="500" placeholder="Enter Content" required>{{ old('content') }}</textarea>
+                                            @error('content')
+                                                <span class="invalid-feedback" role="alert">
+                                                    <strong>{{ $message }}</strong>
+                                                </span>
+                                            @enderror
+                                        </div>
+                                        <div class="form-group my-3" style="border-bottom: 1px solid rgba(114, 114, 114, 0.5)">
+                                            <label for="assigned-btn" class="rkm-control-label">Classes</label>
+                                            <button id="assigned-btn" type="button" class="btn-free w-100 text-left text-dgray lead mb-2 @error('classes') is-invalid @enderror">
+                                                Classes
+                                            </button>
+                                            <div id="assigned-list" style="display: none; border-top: 1px solid rgba(114, 114, 114, 0.2)">
+                                                <div class="custom-control custom-checkbox my-3">
+                                                    <input type="checkbox" class="custom-control-input" id="opt-0" checked>
+                                                    <label class="custom-control-label w-100" for="opt-0">All students</label>
+                                                    <div id="classes-list"></div>
+                                                </div>
+                                            </div>
+                                            @error('classes')
+                                                <span class="invalid-feedback" role="alert">
+                                                    <strong>{{ $message }}</strong>
+                                                </span>
+                                            @enderror
+                                        </div>
+                                        <div class="form-groupe mt-4">
+                                            <button type="submit" class="rb rb-primary rbl w-100">Publish</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endcan
     </div>
 </section>
 @endsection
+
+@push('scripts')
+    @if (Auth::user()->isProfessor())
+        <script type="text/javascript" src="{{ asset("js/announcement-form.js") }}"></script>
+    @endif
+@endpush

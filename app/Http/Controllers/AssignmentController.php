@@ -110,8 +110,11 @@ class AssignmentController extends CommunityController
             // Submitted / All Submitted
             else if ($filter_1 == 2)
                 if (Auth::user()->isProfessor())
+                {
                     //$assignments->withCount('submissions')->whereColumn('submissions_count', 'assigned_to_count')->orderBy('id', 'desc');
-                    $assignments->has('submissions', DB::raw('assigned_to_count'))->orderBy('id', 'desc');
+                    //$assignments->has('submissions', DB::raw('assigned_to_count'))->orderBy('id', 'desc');
+                    $assignments->orderBy('id', 'desc');
+                }
                 else
                     $assignments->whereHas('submissions', function (Builder $query) {
                         $query->where(function (Builder $query) {
