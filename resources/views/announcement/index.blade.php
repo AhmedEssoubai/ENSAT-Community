@@ -6,9 +6,9 @@
         <div class="row mx-3 mt-2 mb-3 pb-3 d-flex justify-content-between">
             <div>
                 <h3 class="text-black">Announcements</h3>
-                <p class="text-muted">
+                {{--<p class="text-muted">
                     You have 0
-                </p>
+                </p>--}}
             </div>
             @can('create', App\Announcement::class)
                 <div class="mb-5 mx-3">
@@ -17,38 +17,51 @@
             @endcan
         </div>
         <div class="row mb-5 chronological-list">
-            <div class="col-12 mb-3 d-flex">
+            {{--<div class="col-12 mb-3 d-flex">
                 <div class="px-4 py-2 text-dgray mx-auto border-bottom border-primary lead text-bold" style="border-width: 2px !important">2020</div>
-            </div>
-            <div class="col-12 chronological-section">
-                <div class="chronological-date">
-                    <div class="d-flex">
-                        <div class="chronological-date-box mr-2 text-dgray text-up" style="font-size: 0.75rem; font-weight: 700">
-                            DEC
-                        </div>
-                        <div class="chronological-date-box text-dgray text-up">
-                            20
-                        </div>
-                    </div>
-                    <div class="text-dgray text-right">
-                        <small>20 hours ago</small>
-                    </div>
-                </div>
-                <div class="chronological-contents">
-                    @foreach ($day_announcements as $announcement)
-                        <div class="chronological-contents-item">
-                            <div class="chronological-contents-type">
-                                <div class="chronological-contents-type-icon text-dgray"><i class="fas fa-bullhorn"></i></div>
+            </div>--}}
+            @php
+            $i = 1
+            @endphp
+            @foreach ($announcements as $day_announcements)
+                <div class="col-12 chronological-section">
+                    <div class="chronological-date">
+                        <div class="d-flex">
+                            <div class="chronological-date-box mr-2 text-dgray text-up" style="font-size: 0.75rem; font-weight: 700">
+                                {{ $day_announcements->first()->created_at->shortEnglishMonth }}
                             </div>
-                            <h4><a class="_link" href="">{{ $announcement->title }}</a></h4>
-                            <div class="mt-2 mb-3 text-dark">by {{ $announcement->professor->user->firstname }} {{ $announcement->professor->user->lastname }}</div>
-                            <div class="text-dgray" id="post_content_{{ $announcement->id }}">
-                                {{ $announcement->content }}
+                            <div class="chronological-date-box text-dgray text-up">
+                                {{ $day_announcements->first()->created_at->day }}
                             </div>
                         </div>
-                    @endforeach
+                        <div class="text-dgray text-right">
+                            <small>{{ $day_announcements->first()->created_at->diffForHumans(['options' => Carbon\Carbon::NO_ZERO_DIFF]) }}</small>
+                        </div>
+                    </div>
+                    <div class="chronological-contents">
+                        @foreach ($day_announcements as $announcement)
+                            <div class="chronological-contents-item">
+                                <div class="chronological-contents-type">
+                                    <div class="chronological-contents-type-icon text-dgray"><i class="fas fa-bullhorn"></i></div>
+                                </div>
+                                <h4><a class="_link" href="{{ route('announcements.show', $announcement->id) }}">{{ $announcement->title }}</a></h4>
+                                <div class="mt-2 mb-3 text-dark">by {{ $announcement->professor->user->firstname }} {{ $announcement->professor->user->lastname }}</div>
+                                <div class="text-dgray" id="post_content_{{ $i }}">
+                                    {{ $announcement->content }}
+                                </div>
+                                <div class="mt-3 text-mgray">for 
+                                    @foreach ($announcement->classes as $c)
+                                    {{ $c->label }}@if (!$loop->last), @endif
+                                    @endforeach
+                                </div>
+                            </div>
+                            @php
+                            $i++
+                            @endphp
+                        @endforeach
+                    </div>
                 </div>
-            </div>
+            @endforeach
             {{-- <i class="fas fa-bullhorn"></i>
             <i class="fas fa-star"></i>
             <i class="fas fa-exclamation-triangle"></i>  --}}
@@ -113,7 +126,7 @@
                         <div class="modal-body">
                             <div class="container h-100 py-5">
                                 <div class="row justify-content-md-center h-100 align-items-center pt-3">
-                                    <form class="col-sm-12 col-md-8 col-lg-6" method="POST" enctype="multipart/form-data" action="{{ route('resources') }}">
+                                    <form class="col-sm-12 col-md-8 col-lg-6" method="POST" action="{{ route('announcements') }}">
                                         @csrf
                                         <div class="mb-5 d-flex justify-content-between align-items-center">
                                             <h2 class="text-center">New announcement</h2>
@@ -137,15 +150,22 @@
                                             @enderror
                                         </div>
                                         <div class="form-group my-3" style="border-bottom: 1px solid rgba(114, 114, 114, 0.5)">
-                                            <label for="assigned-btn" class="rkm-control-label">Classes</label>
-                                            <button id="assigned-btn" type="button" class="btn-free w-100 text-left text-dgray lead mb-2 @error('classes') is-invalid @enderror">
+                                            <label for="classes-btn" class="rkm-control-label">Classes</label>
+                                            <button id="classes-btn" type="button" class="btn-free w-100 text-left text-dgray lead mb-2 @error('classes') is-invalid @enderror">
                                                 Classes
                                             </button>
-                                            <div id="assigned-list" style="display: none; border-top: 1px solid rgba(114, 114, 114, 0.2)">
+                                            <div id="classes-list" style="display: none; border-top: 1px solid rgba(114, 114, 114, 0.2)">
                                                 <div class="custom-control custom-checkbox my-3">
                                                     <input type="checkbox" class="custom-control-input" id="opt-0" checked>
-                                                    <label class="custom-control-label w-100" for="opt-0">All students</label>
-                                                    <div id="classes-list"></div>
+                                                    <label class="custom-control-label w-100" for="opt-0">All classes</label>
+                                                    <div id="targets-list">
+                                                        @isset($classes)
+                                                            @foreach ($classes as $c)
+                                                                <div><input type="checkbox" name="classes[]" value="{{$c->id}}" class="custom-control-input" id="opt-{{$c->id}}" @if(old('class', $c->id) == $c->id) checked @endif>
+                                                                <label class="custom-control-label w-100" for="opt-{{$c->id}}">{{$c->label}}</label></div>
+                                                            @endforeach
+                                                        @endisset
+                                                    </div>
                                                 </div>
                                             </div>
                                             @error('classes')
@@ -155,7 +175,7 @@
                                             @enderror
                                         </div>
                                         <div class="form-groupe mt-4">
-                                            <button type="submit" class="rb rb-primary rbl w-100">Publish</button>
+                                            <button id="btn-submit" type="submit" class="rb rb-primary rbl w-100" @if($classes == null && $classes->count() == 0) disabled @endif>Publish</button>
                                         </div>
                                     </form>
                                 </div>
@@ -173,4 +193,8 @@
     @if (Auth::user()->isProfessor())
         <script type="text/javascript" src="{{ asset("js/announcement-form.js") }}"></script>
     @endif
+    <script type="text/javascript">
+        for(i = 1; i <= {{ $announcements_count }}; i++)
+            bringLifeToLinks("post_content_" + i);
+    </script>
 @endpush

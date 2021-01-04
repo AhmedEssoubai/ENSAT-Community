@@ -159,6 +159,9 @@
             </div>
             
             @auth
+                <div class="mr-2 mr-md-3 p-md-1 p-lg-2">
+                    <a class="text-white _link" href="{{ route('announcements') }}"><i class="fas fa-bullhorn"></i></a>
+                </div>
                 <div class="dropdown">
                     <img src="{{ Auth::user()->image }}" id="dml_profil" class="img-fluid rounded-circle dropdown-toggle" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" />
                     <div class="dropdown-menu dropdown-menu-right rkm-dropdown-menu mt-2" aria-labelledby="dml_profil">

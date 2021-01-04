@@ -106,7 +106,20 @@ class AssignmentController extends CommunityController
             $filter_1 = $request->filter_1;
             // Missing / Closed
             if ($filter_1 == 1)
+            {
                 $assignments->where('deadline', '<=', Carbon::now()->toDateTimeString())->orderBy('id', 'desc');
+                if (Auth::user()->isStudent())
+                    $assignments->whereDoesntHave('submissions', function (Builder $query) {
+                        $query->where(function (Builder $query) {
+                            $query->where('submitter_type', 'App\Student')
+                                ->where('submitter_id', Auth::user()->profile_id);
+                        })->orWhere(function (Builder $query) {
+                            global $groups;
+                            $query->where('submitter_type', 'App\Group')
+                                ->whereIn('submitter_id', $groups);
+                        });
+                    });
+            }
             // Submitted / All Submitted
             else if ($filter_1 == 2)
                 if (Auth::user()->isProfessor())
@@ -167,6 +180,7 @@ class AssignmentController extends CommunityController
                                 'students' => $this->studentsSample($class),
                                 'tw_assignments' => $this->thisWeekAssignments($class),
                                 'nw_assignments' => $this->nextWeekAssignments($class),
+                                'lt_announcements' => $this->latestAnnouncements($class),
                                 'filter_1' => $filter_1,
                                 'filter_2' => $filter_2,
                                 'search' => $search,

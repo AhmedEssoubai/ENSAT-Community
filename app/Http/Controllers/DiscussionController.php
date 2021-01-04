@@ -55,6 +55,7 @@ class DiscussionController extends CommunityController
             'discussions' => $discussions, 
             'tw_assignments' => $this->thisWeekAssignments($class),
             'nw_assignments' => $this->nextWeekAssignments($class),
+            'lt_announcements' => $this->latestAnnouncements($class),
             'filter_1' => $filter_1,
             'filter_2' => $filter_2,
             'search' => $search,

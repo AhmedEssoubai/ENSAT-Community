@@ -30,18 +30,25 @@ class SideBar extends Component
      * @var collect
      */
     public $nw_assignments;
+    /**
+     * Latest announcements
+     *
+     * @var collect
+     */
+    public $lt_announcements;
     
     /**
      * Create a new component instance.
      *
      * @return void
      */
-    public function __construct($students, $class, $twassignments, $nwassignments)
+    public function __construct($students, $class, $twassignments, $nwassignments, $ltannouncements)
     {
         $this->students = $students;
         $this->class = $class;
         $this->tw_assignments = $twassignments;
         $this->nw_assignments = $nwassignments;
+        $this->lt_announcements = $ltannouncements;
     }
 
     /**

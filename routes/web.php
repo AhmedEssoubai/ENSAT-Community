@@ -112,6 +112,7 @@ Route::patch('/profile/security/{user:cin}', 'ProfileController@updateSecurity')
 // Announcement
 Route::get('/announcements', 'AnnouncementController@index')->name('announcements');
 Route::post('/announcements', 'AnnouncementController@store')->name('announcements')->middleware('professor');
+Route::get('/announcements/{announcement}', 'AnnouncementController@show')->name('announcements.show');
 Route::get('/announcements/{announcement}/edit', 'AnnouncementController@edit')->name('announcements.edit')->middleware('professor');
 Route::patch('/announcements/{announcement}', 'AnnouncementController@update')->name('announcements.update')->middleware('professor');
 Route::get('/announcements/d/{announcement}', 'AnnouncementController@destroy')->name('announcements.destroy')->middleware('professor');

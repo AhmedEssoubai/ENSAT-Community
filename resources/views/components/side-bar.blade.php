@@ -33,7 +33,7 @@
         </div>
     @endif
     <div class="text-center mt-3">
-        <a href="{{ route('classes.assignments', $class->id) }}?filter_1=3" class="_link px-3"><small>Show all</small></a>
+        <a href="{{ route('classes.assignments', $class->id) }}" class="_link px-3"><small>Show all</small></a>
     </div>
 </div>
 @endif
@@ -52,5 +52,25 @@
     </div>
     <div class="text-center mt-3">
         <a href="/classes/{{ $class->id }}/members" class="_link px-3"><small>Show all</small></a>
+    </div>
+</div>
+{{-- Announcements list --}}
+<div class="py-3 mb-4 border-rounded">
+    <h6 class="text-dark mx-3 mb-3">Latest announcements</h6>
+    @if ($lt_announcements->count())
+        <div class="rkm-list-group">
+            @foreach ($lt_announcements as $an)
+                <a href="{{ route('assignments.show', $an->id) }}" class="list-group-item d-flex align-items-center border-0">
+                    <small class="line-clamp mr-1">{{ $an->title }}</small>
+                </a>
+            @endforeach
+        </div>
+    @else
+        <div class="my-3 text-center">
+            <small class="text-lgray">There is no new announcements.</small>
+        </div>
+    @endif
+    <div class="text-center mt-3">
+        <a href="{{ route('announcements') }}" class="_link px-3"><small>Show all</small></a>
     </div>
 </div>

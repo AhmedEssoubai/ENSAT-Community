@@ -3,7 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Announcement;
+use App\Classe;
+use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 
 class AnnouncementController extends Controller
 {
@@ -25,7 +30,47 @@ class AnnouncementController extends Controller
      */
     public function index()
     {
-        return view('announcement.index', ['day_announcements' => []]);
+        $classes = null;
+        if (Auth::user()->isProfessor())
+        {
+            if (Auth::user()->isAdmin())
+            {
+                $classes = Classe::select(['id', 'label'])->get();
+                $dbannouncements = Announcement::orderBy('created_at', 'DESC');
+            }
+            else
+            {
+                $classes = Auth::user()->isAdmin() ?? Auth::user()->profile()->classes()->select(['id', 'label'])->get();
+                $dbannouncements = Announcement::whereHas('classes', function (Builder $query) {
+                    $query->whereIn('id', []);
+                })->orderBy('created_at', 'DESC');
+            }
+        }
+        else
+            $dbannouncements = Announcement::whereHas('classes', function (Builder $query) {
+                $query->where('id', Auth::user()->profile->class_id);
+            })->orderBy('created_at', 'DESC');
+        $announcements = collect();
+        $dbannouncements = $dbannouncements->with('classes:id,label', 'professor.user:id,firstname,lastname,profile_id,profile_type')->get();
+        $day_announcements = collect();
+        $day = null;
+        $count = $dbannouncements->count();
+        foreach ($dbannouncements as $announcement)
+        {
+            if ($announcement->created_at->toDateString() != $day)
+            {
+                if ($day != null)
+                {
+                    $announcements->push($day_announcements);
+                    $day_announcements = collect();
+                    $day = $announcement->created_at->toDateString();
+                }
+                $day = $announcement->created_at->toDateString();
+            }
+            $day_announcements->push($announcement);
+        }
+        $announcements->push($day_announcements);
+        return view('announcement.index', ['classes' => $classes, 'announcements' => $announcements, 'announcements_count' => $count]);
     }
     
     /**
@@ -41,7 +86,7 @@ class AnnouncementController extends Controller
         $request->validate([
             'title' => ['required', 'string', 'max:125'],
             'content' => ['required', 'string'],
-            'classes' => ['required', 'array'],
+            'classes' => ['required', 'array', 'min:1'],
             'classes.*' => ['required', 'numeric', 'min:1']
         ]);
 
@@ -51,8 +96,12 @@ class AnnouncementController extends Controller
 
         $announcement = Announcement::create([
             'title' => $title,
-            'content' => $content
+            'content' => $content,
+            'professor_id' => Auth::user()->profile_id
         ]);
+
+        foreach($classes as $class)
+            $announcement->classes()->attach($class);
 
         return redirect()->back();
     }
@@ -64,10 +113,8 @@ class AnnouncementController extends Controller
      */
     public function show(Announcement $announcement)
     {
-        /*Gate::authorize('class-member', $announcement->course->classe);
-        if (Auth::user()->isStudent())
-            $announcement->views()->syncWithoutDetaching(Auth::user()->profile_id);
-        return view('resource.show', ['resource' => $resource, 'user' => Auth::id(), 'class' => $resource->course->classe]);*/
+        //Gate::authorize('class-member', $announcement->course->classe);
+        return view('announcement.show', ['announcement' => $announcement]);
     }
 
     /**
@@ -77,13 +124,14 @@ class AnnouncementController extends Controller
      */
     public function edit(Announcement $announcement)
     {
-        /*$this->authorize('update', $resource);
-
-        $resource->load('files:id,name,container_id,container_type');
-        return view('resource.edit', ['class' => $resource->class, 
-        'prof_courses' => $resource->class->professorCourses(Auth::user()->profile_id),
-        'resource' => $resource, 
-        'tab_index' => 0]);*/
+        $this->authorize('update', $announcement);
+        if (Auth::user()->isAdmin())
+            $classes = Classe::select(['id', 'label'])->get();
+        else
+            $classes = Auth::user()->isAdmin() ?? Auth::user()->profile()->classes()->select(['id', 'label'])->get();
+        $announcement->load('classes:id,label');
+        return view('announcement.edit', ['classes' => $classes, 
+        'announcement' => $announcement]);
     }
 
     /**

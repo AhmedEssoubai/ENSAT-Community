@@ -117,4 +117,12 @@ class Classe extends Model
     {
         return $this->chef_id == $professor_id;
     }
+
+    /**
+     * The class announcements
+     */
+    public function announcements()
+    {
+        return $this->belongsToMany('App\Announcement', 'announcement_class', 'class_id', 'announcement_id');
+    }
 }

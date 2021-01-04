@@ -26,15 +26,18 @@ class ResourceController extends CommunityController
         $resources = $class->resources()->with(['class', 'course:id,short_title,color,class_id,professor_id', 'professor.user:id,firstname,lastname,image,profile_id,profile_type'])->orderBy('id', 'desc');
         $filter = 0;
         $search = null;
+        $filter_url = null;
         if ($request->has('filter') && $request->filter != 0)
         {
             $filter = $request->filter;
             $resources->where('course_id', $filter);
+            $filter_url = $this->addFilterToUrl($filter_url, 'filter', $filter);
         }
         if ($request->has('search') && !empty($request->search))
         {
             $search = $request->search;
             $resources->where('resources.title', 'like', '%'.$search.'%');
+            $filter_url = $this->addFilterToUrl($filter_url, 'search', $search);
         }
         $resources = $resources->simplePaginate(20);
         return view('resource.index', [
@@ -45,9 +48,11 @@ class ResourceController extends CommunityController
             //Resource::where('class_id', $class->id)->with(['course:id,short_title,color,professor.user'])->get(), 
             'tw_assignments' => $this->thisWeekAssignments($class),
             'nw_assignments' => $this->nextWeekAssignments($class),
+            'lt_announcements' => $this->latestAnnouncements($class),
             'prof_courses' => $class->professorCourses(Auth::user()->profile_id),
             'filter' => $filter,
             'search' => $search,
+            'filter_url' => $filter_url,
             'sub_tab_index' => 1]);
     }
 

@@ -82,13 +82,15 @@ class Assignment extends Model
                 ->select('id', 'assignment_id', 'submitter_id', 'submitter_type')
                 ->with('files')
                 ->where(function (Builder $query) {
-                    global $student;
-                    $query->where('submitter_type', 'App\Student')
-                        ->where('submitter_id', $student);
-                })->orWhere(function (Builder $query) {
-                    global $groups;
-                    $query->where('submitter_type', 'App\Group')
-                        ->whereIn('submitter_id', $groups);
+                    $query->where(function (Builder $query) {
+                        global $student;
+                        $query->where('submitter_type', 'App\Student')
+                            ->where('submitter_id', $student);
+                    })->orWhere(function (Builder $query) {
+                        global $groups;
+                        $query->where('submitter_type', 'App\Group')
+                            ->whereIn('submitter_id', $groups);
+                    });
                 })->first();
         }
         return null;

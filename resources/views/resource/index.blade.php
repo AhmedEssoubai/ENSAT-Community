@@ -15,11 +15,17 @@
                             @endforeach
                         </select>
                     </div>
+                    @isset($search)
+                        <input type="hidden" name="search" value="{{ $search }}"/>
+                    @endisset
                 </form>
                 <div class="mb-5">
                     <form id="s_form" method="GET" action="{{ route('classes.resources', $class->id) }}" class="rkm-form-input d-flex align-items-center py-2 px-3">
                         <span><i class="fas fa-search mr-3"></i></span>
                         <input type="text" name="search" maxlength="125" class="free py-1" placeholder="Looking For What?" onkeyup="submitFormOnEnter(event, 's_form')" value="{{ $search }}" />
+                        @isset($filter)
+                            <input type="hidden" name="filter" value="{{ $filter }}"/>
+                        @endisset
                     </form>
                 </div>
             </div>
@@ -62,7 +68,7 @@
                             @if($filter == 0) 
                                 The class 
                             @else
-                                The course <strong>"{{ Str::title($class->courses->find($filter_2)->short_title) }}"</strong> 
+                                The course <strong>"{{ Str::title($class->courses->find($filter)->short_title) }}"</strong> 
                             @endif
                             has no resources @isset($search) related to <strong>"{{ $search }}"</strong> @endisset</h5>
                     </div>
@@ -79,7 +85,7 @@
                 <button class="rb rb-primary rbl w-100" data-toggle="modal" data-target="#new_resource">new resource</button>
             </div>
             @endcan
-            <x-side-bar :students="$students" :class="$class" :twassignments="$tw_assignments" :nwassignments="$nw_assignments"/>
+            <x-side-bar :students="$students" :class="$class" :twassignments="$tw_assignments" :nwassignments="$nw_assignments" :ltannouncements="$lt_announcements"/>
             {{-- Assignments list --}}
             {{--<div class="py-3 mb-4 border-rounded">
                 <h6 class="text-dark mx-3 mb-3">This week assignments</h6>

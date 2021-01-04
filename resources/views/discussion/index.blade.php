@@ -23,11 +23,18 @@
                             @endforeach
                         </select>
                     </div>
+                    @isset($search)
+                        <input type="hidden" name="search" value="{{ $search }}"/>
+                    @endisset
                 </form>
                 <div class="mb-5">
                     <form id="s_form" method="GET" action="{{ route('classes.discussions', $class->id) }}" class="rkm-form-input d-flex align-items-center py-2 px-3">
                         <span><i class="fas fa-search mr-3"></i></span>
                         <input type="text" name="search" maxlength="125" class="free py-1" placeholder="Looking For What?" onkeyup="submitFormOnEnter(event, 's_form')" value="{{ $search }}" />
+                        @isset($filter_1)
+                            <input type="hidden" name="filter_1" value="{{ $filter_1 }}"/>
+                            <input type="hidden" name="filter_2" value="{{ $filter_2 }}"/>
+                        @endisset
                     </form>
                 </div>
             </div>
@@ -99,7 +106,7 @@
             <div class="mb-5 mx-3">
                 <button class="rb rb-primary rbl w-100" data-toggle="modal" data-target="#new_discussion">NEW DISCUSSION</button>
             </div>
-            <x-side-bar :students="$students" :class="$class" :twassignments="$tw_assignments" :nwassignments="$nw_assignments"/>
+            <x-side-bar :students="$students" :class="$class" :twassignments="$tw_assignments" :nwassignments="$nw_assignments" :ltannouncements="$lt_announcements"/>
         </div>
         <div class="modal fade rkm-model" id="delete_post" tabindex="-1" role="dialog" aria-labelledby="dp-modalLabel" aria-hidden="true">
             <div class="modal-dialog rkm-dialog-message" role="document">
