@@ -126,7 +126,7 @@
                         <div class="modal-body">
                             <div class="container h-100 py-5">
                                 <div class="row justify-content-md-center h-100 align-items-center pt-3">
-                                    <form class="col-sm-12 col-md-8 col-lg-6" method="POST" action="{{ route('announcements') }}">
+                                    <form class="col-sm-12 col-md-8 col-lg-6" method="POST" action="{{ route('announcements.store') }}">
                                         @csrf
                                         <div class="mb-5 d-flex justify-content-between align-items-center">
                                             <h2 class="text-center">New announcement</h2>
@@ -161,14 +161,14 @@
                                                     <div id="targets-list">
                                                         @isset($classes)
                                                             @foreach ($classes as $c)
-                                                                <div><input type="checkbox" name="classes[]" value="{{$c->id}}" class="custom-control-input" id="opt-{{$c->id}}" @if(old('class', $c->id) == $c->id) checked @endif>
+                                                                <div><input type="checkbox" name="classes[]" value="{{$c->id}}" class="custom-control-input" id="opt-{{$c->id}}" checked>
                                                                 <label class="custom-control-label w-100" for="opt-{{$c->id}}">{{$c->label}}</label></div>
                                                             @endforeach
                                                         @endisset
                                                     </div>
                                                 </div>
                                             </div>
-                                            @error('classes')
+                                            @error('classes[]')
                                                 <span class="invalid-feedback" role="alert">
                                                     <strong>{{ $message }}</strong>
                                                 </span>

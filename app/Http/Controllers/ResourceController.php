@@ -74,7 +74,9 @@ class ResourceController extends CommunityController
         $request->validate([
             'title' => ['required', 'string', 'max:125'],
             'content' => ['required', 'string'],
-            'course' => ['required', 'numeric', 'min:1']
+            'course' => ['required', 'numeric', 'min:1'],
+            'attachments' => ['array'],
+            'attachments.*' => ['file', 'max:20000']
         ]);
         $title = $request->input('title');
         $content = $request->input('content');
@@ -140,19 +142,22 @@ class ResourceController extends CommunityController
             'content' => ['required', 'string'],
             'course_id' => ['required', 'numeric', 'min:1'],
             'eattachments' => ['array'],
-            'eattachments.*' => ['integer', 'min:1']
+            'eattachments.*' => ['integer', 'min:1'],
+            'attachments' => ['array'],
+            'attachments.*' => ['file', 'max:20000']
         ]);
 
-        $eattachments = $data['eattachments'];
-        if (is_array($eattachments) || is_object($eattachments))
+        $resource->load('files:id,url,container_id,container_type');
+        if ($request->has('eattachments') || $resource->files->count() > 0)
         {
+            $eattachments = $request->input('eattachments') ?? [];
             global $files;
             $files = collect([]);
     
             $resource->files->except($eattachments)->each(function ($file, $key) {
                 global $files;
                 $files->push($file->id);
-                $files->views()->detach();
+                $file->views()->detach();
                 Storage::delete('uploads/resources/'.$file->url);
             });
     
@@ -181,7 +186,7 @@ class ResourceController extends CommunityController
         $resource->files->each(function ($file, $key) {
             global $files;
             $files->push($file->id);
-            $files->views()->detach();
+            $file->views()->detach();
             Storage::delete('uploads/resources/'.$file->url);
         });
 

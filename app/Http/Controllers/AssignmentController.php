@@ -211,7 +211,9 @@ class AssignmentController extends CommunityController
             'course' => ['required', 'numeric', 'min:1'],
             'assigned_type' => ['required', 'integer'],
             'assigned_all' => 'boolean',
-            'targets' => 'array'
+            'targets' => 'array',
+            'attachments' => ['array'],
+            'attachments.*' => ['file', 'max:20000']
         ]);
 
         $assigned_to_count = 0;
@@ -244,22 +246,8 @@ class AssignmentController extends CommunityController
                 $assignment->students()->attach($data['targets']);
         }
 
-        $attachments = $request->file('attachments');
+        $this->saveAttachments($assignment, $request->file('attachments'));
 
-        if (is_array($attachments) || is_object($attachments))
-        {
-            foreach($attachments as $attachment)
-            {
-                $file = $attachment->getClientOriginalName();
-                $name = pathinfo($file, PATHINFO_FILENAME) . '.' . pathinfo($file, PATHINFO_EXTENSION);
-                $path = $attachment->store('uploads/assignments');
-                $parts = explode("/", $path);
-                $assignment->files()->create([
-                    'url' => $parts[count($parts) - 1],
-                    'name' => $name
-                ]);
-            }
-        }
         return redirect()->back();
     }
 
@@ -293,7 +281,11 @@ class AssignmentController extends CommunityController
     {
         $this->authorize('update', $assignment);
 
-        return view('assignment.edit', ['assignment' => $assignment]);
+        $assignment->load('files:id,name,container_id,container_type');
+        return view('assignment.edit', ['class' => $assignment->class, 
+        'prof_courses' => $assignment->class->professorCourses(Auth::user()->profile_id),
+        'assignment' => $assignment, 
+        'tab_index' => 0]);
     }
 
     /**
@@ -301,25 +293,43 @@ class AssignmentController extends CommunityController
      *
      * @return \Illuminate\Contracts\Support\Renderable
      */
-    public function update(Assignment $assignment)
+    public function update(Assignment $assignment, Request $request)
     {
         $this->authorize('update', $assignment);
 
-        $data = request()->validate([
-            'titre' => ['required', 'string', 'max:255'],
-            'content' => ['required', 'string'],
-            'image' => ['image']
+        $data = $request->validate([
+            'title' => ['required', 'string', 'max:125'],
+            'objectif' => ['required', 'string'],
+            'deadline' => ['required', 'date'],
+            'course_id' => ['required', 'numeric', 'min:1'],
+            'eattachments' => ['array'],
+            'eattachments.*' => ['integer', 'min:1'],
+            'attachments' => ['array'],
+            'attachments.*' => ['file', 'max:20000']
         ]);
 
-        if (!empty($data['image']))
+        $assignment->load('files:id,url,container_id,container_type');
+        if ($request->has('eattachments') || $assignment->files->count() > 0)
         {
-            Storage::delete($assignment->image);
-            $image = ['image' => ($data['image']->store('uploads', 'public'))];
+            $eattachments = $request->input('eattachments') ?? [];
+            global $files;
+            $files = collect([]);
+    
+            $assignment->files->except($eattachments)->each(function ($file, $key) {
+                global $files;
+                $files->push($file->id);
+                $file->views()->detach();
+                Storage::delete('uploads/assignments/'.$file->url);
+            });
+    
+            File::destroy($files);
         }
 
-        $assignment->update(array_merge($data, $image ?? []));
+        $this->saveAttachments($assignment, $request->file('attachments'));
+
+        $assignment->update($data);
         
-        return redirect()->route('assignment.show', ['assignment' => $assignment]);
+        return redirect()->route('assignments.show', ['assignment' => $assignment]);
     }
 
     /**
@@ -337,7 +347,7 @@ class AssignmentController extends CommunityController
         $assignment->files->each(function ($file, $key) {
             global $files;
             $files->push($file->id);
-            $files->views()->detach();
+            $file->views()->detach();
             Storage::delete('uploads/assignments/'.$file->url);
         });
         $assignment->submissions()->files->each(function ($file, $key) {
@@ -408,5 +418,26 @@ class AssignmentController extends CommunityController
                                 'imgs' => $imgs, 
                                 'dates' => $dates, 
                                 'files_history' => $files_history]);
+    }
+
+    /**
+     * Save the attached files of a assignment
+     */
+    private function saveAttachments(Assignment $assignment, $attachments)
+    {
+        if (is_array($attachments) || is_object($attachments))
+        {
+            foreach($attachments as $attachment)
+            {
+                $file = $attachment->getClientOriginalName();
+                $name = pathinfo($file, PATHINFO_FILENAME) . '.' . pathinfo($file, PATHINFO_EXTENSION);
+                $path = $attachment->store('uploads/assignments');
+                $parts = explode("/", $path);
+                $assignment->files()->create([
+                    'url' => $parts[count($parts) - 1],
+                    'name' => $name
+                ]);
+            }
+        }
     }
 }

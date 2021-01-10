@@ -45,7 +45,8 @@ class GroupController extends Controller
         $data = request()->validate([
             'label' => ['required', 'string', 'max:255'],
             'class' => ['required', 'numeric', 'min:1'],
-            'students' => ['required', 'array']
+            'students' => ['required', 'array', 'min:1'],
+            'students.*' => ['required', 'numeric', 'min:1']
         ]);
         $g = Group::create([
             'label' => $data['label'],
@@ -79,7 +80,8 @@ class GroupController extends Controller
 
         $data = request()->validate([
             'label' => ['required', 'string', 'max:255'],
-            'students' => ['required', 'array']
+            'students' => ['required', 'array', 'min:1'],
+            'students.*' => ['required', 'numeric', 'min:1']
         ]);
 
         $group->load('students:id');

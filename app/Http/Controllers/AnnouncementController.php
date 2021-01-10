@@ -69,7 +69,8 @@ class AnnouncementController extends Controller
             }
             $day_announcements->push($announcement);
         }
-        $announcements->push($day_announcements);
+        if ($dbannouncements->count() > 0)
+            $announcements->push($day_announcements);
         return view('announcement.index', ['classes' => $classes, 'announcements' => $announcements, 'announcements_count' => $count]);
     }
     
@@ -100,8 +101,7 @@ class AnnouncementController extends Controller
             'professor_id' => Auth::user()->profile_id
         ]);
 
-        foreach($classes as $class)
-            $announcement->classes()->attach($class);
+        $announcement->classes()->attach($classes);
 
         return redirect()->back();
     }
@@ -129,7 +129,7 @@ class AnnouncementController extends Controller
             $classes = Classe::select(['id', 'label'])->get();
         else
             $classes = Auth::user()->isAdmin() ?? Auth::user()->profile()->classes()->select(['id', 'label'])->get();
-        $announcement->load('classes:id,label');
+        $announcement->load('classes:id');
         return view('announcement.edit', ['classes' => $classes, 
         'announcement' => $announcement]);
     }
@@ -141,37 +141,29 @@ class AnnouncementController extends Controller
      */
     public function update(Announcement $announcement, Request $request)
     {
-        /*$this->authorize('update', $resource);
+        $this->authorize('update', $announcement);
 
         $data = $request->validate([
             'title' => ['required', 'string', 'max:125'],
             'content' => ['required', 'string'],
-            'course_id' => ['required', 'numeric', 'min:1'],
-            'eattachments' => ['array'],
-            'eattachments.*' => ['integer', 'min:1']
+            'classes' => ['required', 'array', 'min:1'],
+            'classes.*' => ['required', 'numeric', 'min:1']
         ]);
 
-        $eattachments = $data['eattachments'];
-        if (is_array($eattachments) || is_object($eattachments))
-        {
-            global $files;
-            $files = collect([]);
-    
-            $resource->files->except($eattachments)->each(function ($file, $key) {
-                global $files;
-                $files->push($file->id);
-                $files->views()->detach();
-                Storage::delete('uploads/resources/'.$file->url);
-            });
-    
-            File::destroy($files);
-        }
+        $announcement->load('classes:id');
 
-        $this->saveAttachments($resource, $request->file('attachments'));
+        $del = $announcement->classes->except($data['classes']);
+        $new = array();
+        foreach ($data['classes'] as $class)
+            if (!$announcement->classes->contains($class))
+                array_push($new, $class);
 
-        $resource->update($data);
+        $announcement->classes()->detach($del);
+        $announcement->classes()->attach($new);
+
+        $announcement->update($data);
         
-        return redirect()->route('resources.show', ['resource' => $resource]);*/
+        return redirect()->route('announcements.show', ['announcement' => $announcement]);
     }
 
     /**

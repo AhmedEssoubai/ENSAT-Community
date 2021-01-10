@@ -19,7 +19,7 @@ class CreateSubmissionsTable extends Migration
             $table->integer('submitter_id');
             $table->string('submitter_type');
             $table->timestamps();
-            $table->unique(['assignment_id', 'submitter_id', 'submitter_id']);
+            $table->unique(['assignment_id', 'submitter_id', 'submitter_type']);
         });
     }
 

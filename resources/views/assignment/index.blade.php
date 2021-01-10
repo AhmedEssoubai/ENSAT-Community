@@ -82,9 +82,9 @@
                                         <div class="d-flex align-items-center dropdown">
                                             <span class="text-mgray icon-hidden" id="assignment_{{ $assignment->id }}_options" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-ellipsis-h"></i></span>
                                             <div class="dropdown-menu rkm-dropdown-menu" aria-labelledby="assignment_{{ $assignment->id }}_options">
-                                                {{--@can('update', $assignment)
+                                                @can('update', $assignment)
                                                     <a class="dropdown-item rkm-dropdown-item" href="{{ route('assignments.edit', $assignment->id) }}">Edit</a>
-                                                @endcan--}}
+                                                @endcan
                                                 <a class="dropdown-item rkm-dropdown-item" data-toggle="modal" data-target="#delete_post" data-id="{{ $assignment->id }}" href="">Delete</a>
                                             </div>
                                         </div>

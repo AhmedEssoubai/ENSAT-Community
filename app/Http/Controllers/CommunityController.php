@@ -84,7 +84,7 @@ class CommunityController extends Controller
 
     public function addFilterToUrl($url, $filter_name, $filter_value)
     {
-        if (isEmpty($url))
+        if (empty($url))
             $url = "?";
         else
             $url .= "&";

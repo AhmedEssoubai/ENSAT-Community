@@ -51,7 +51,7 @@
         </div>
     </div>
     <div class="text-center mt-3">
-        <a href="/classes/{{ $class->id }}/members" class="_link px-3"><small>Show all</small></a>
+        <a href="{{ route('classes.members', $class->id) }}" class="_link px-3"><small>Show all</small></a>
     </div>
 </div>
 {{-- Announcements list --}}
